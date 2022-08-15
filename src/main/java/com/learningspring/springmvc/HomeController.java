@@ -1,19 +1,21 @@
 package com.learningspring.springmvc;
 
-import model.Alien;
+import com.learningspring.springmvc.repository.AlienRepository;
+import com.learningspring.springmvc.model.Alien;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+
 
 @Controller
 public class HomeController
 {
+    @Autowired
+    AlienRepository alienRepository;
     @RequestMapping("/")
     public String home(){
         return "index";
@@ -30,12 +32,20 @@ public class HomeController
     public String addAlien( @ModelAttribute Alien a, Model m){
 
         m.addAttribute("alien", a);
+        alienRepository.save(a);
         return "result";
     }
     @GetMapping("getAliens")
     public String getAliens(Model m){
-        List<Alien> aliens = Arrays.asList(new Alien(007, "Kumar"), new Alien(  12, "Abhishek"));
-        m.addAttribute("result", aliens);
+        List<Alien> aliens = alienRepository.findAll();
+        System.out.println(aliens);
+        m.addAttribute("aliens", aliens);
+        return "showAliens";
+    }
+    @GetMapping("getAlien")
+    public String getAlien(@RequestParam int id, Model m){
+        Optional<Alien> alien = alienRepository.findById(id);
+        m.addAttribute("aliens", alien);
         return "showAliens";
     }
 }
